@@ -5,11 +5,11 @@
     "bot_token": ""
   },
   "mongodb": {
-    "database": "mongodb://127.0.0.1/Reload"
+    "database": "mongodb://127.0.0.1/Arto"
   },
     "chat": {
         "//": "Disabling global chat can help the server to perform faster as less resources are used.",
-        "EnableGlobalChat": false
+        "EnableGlobalChat": true
     },
 
     "bEnableDebugLogs": false,
@@ -27,7 +27,7 @@
         "Win": 50
       }
     },
-
+    
     "Website": {
       "bUseWebsite": false,
       "clientId": "your-client-id-here",
@@ -37,21 +37,21 @@
     },
 
     "//": "to add more gameserver on 'gameServerIP' add ip:port:playlist",
-    "matchmakerIP": "127.0.0.1:80",
+    "matchmakerIP": "195.35.48.168:80",
     "gameServerIP": ["127.0.0.1:7777:playlist_defaultsolo"],
     
     "//": "For 'BattlePassSeason' enter only the number of your season (from 2 to 20)",
-    "bEnableBattlepass": false,
-    "bBattlePassSeason": 2,
+    "bEnableBattlepass": true,
+    "bBattlePassSeason": 10,
 
     "//": "For 'bVersionJoinable' you can set a season that is also `9.10` and not just `9`",
-    "bEnableOnlyOneVersionJoinable": false,
-    "bVersionJoinable": 2,
+    "bEnableOnlyOneVersionJoinable": true,
+    "bVersionJoinable": 10,
 
     "//": "If 'bUseAutoRotate' is enabled it will automatically rotate the item shop using the time you put in 'bRotateTime', you can select the season limit with 'bSeasonLimit' (please only do up to season 10, it might be a bit broken after!), 'bRotateTime' means what time the shop rotates (it is UTC and uses the 24 hour clock, not 12 hour), for 'bItemShopWebhook' you have to generate a webhook to your item shop channel and put the link here, you can select how many cosmetics are in daily: 'bDailyItemsAmount' and featured: 'bFeaturedItemsAmount'",
-    "bUseAutoRotate": false,
-    "bEnableAutoRotateDebugLogs": false,
-    "bEnableDiscordWebhook": false,
+    "bUseAutoRotate": true,
+    "bEnableAutoRotateDebugLogs": true,
+    "bEnableDiscordWebhook": true,
     "bChapterlimit": "1",
     "bSeasonlimit": "10",
     "bRotateTime": "00:00",
@@ -61,22 +61,22 @@
     "bFeaturedItemsAmount": 2,
 
     "//": "By enabling 'bEnableReports' in-game reports will work, a player will not be able to spam reports",
-    "bEnableReports": false,
+    "bEnableReports": true,
     "bReportChannelId": "your-discord-channel-id-here",
 
     "//": "If bCompletedSeasonalQuests is set to 'true' it will set all quests except daily quests as completed",
     "bCompletedSeasonalQuests": false,
 
     "//": "If 'bEnableSACRewards' is enabled it will give the person who supports a creator a percentage of vbucks based on how much percentage you put in 'bPercentageSACRewards' it will give in vbucks, so if you set '25%' and there is a 1000 item in the shop vbucks will give 250 vbucks to the one who supports a creator",
-    "bEnableSACRewards": false,
-    "bPercentageSACRewards": 0,
+    "bEnableSACRewards": true,
+    "bPercentageSACRewards": 10,
 
     "//": "For 'bRestartTime' use this format: [number][y, M, w, d, h, m, s] so 5m, for Month u need to add the big M not the m",
-    "bEnableAutoBackendRestart": false,
-    "bRestartTime": "",
+    "bEnableAutoBackendRestart": true,
+    "bRestartTime": "2d",
 
     "//": "If active it will send a message in the channel when the backend goes online",
-    "bEnableBackendStatus": false,
+    "bEnableBackendStatus": true,
     "bBackendStatusChannelId": "",
 
     "//": "Use HTTPS (For VPS Side Only, Or If You Were To Setup  A Type Record To Your Own Public Adress From Your Domain) (You Also Need To Change The Examples In SSl Folder!)",
@@ -89,7 +89,7 @@
 
     "//": "The Caldera Service is used for newer versions of the game! For see what season are now supported look CalderaService/guids.json and add the version on 'bGameVersion'",
     "bEnableCalderaService": false,
-    "bGameVersion": "27.11",
+    "bGameVersion": "10.40",
     "bCalderaServicePort": 5000,
 
     "//": "These are all the events you can add to the game, like the rift in the sky!",
