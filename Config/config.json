@@ -27,7 +27,7 @@
         "Win": 50
       }
     },
-    
+
     "Website": {
       "bUseWebsite": false,
       "clientId": "your-client-id-here",
@@ -37,7 +37,7 @@
     },
 
     "//": "to add more gameserver on 'gameServerIP' add ip:port:playlist",
-    "matchmakerIP": "195.35.48.168:80",
+    "matchmakerIP": "195.35.48.168:442",
     "gameServerIP": ["127.0.0.1:7777:playlist_defaultsolo"],
     
     "//": "For 'BattlePassSeason' enter only the number of your season (from 2 to 20)",
