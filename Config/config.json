@@ -1,8 +1,8 @@
 {
-    "moderators": ["discordId", "discordId2"],
+    "moderators": ["1193330890915459187"],
   "discord": {
     "bUseDiscordBot": true,
-    "bot_token": ""
+    "bot_token": "MTMzMTc0MzUwNDk3MTMzMzc3Mw.GTX4Bj.d5gJY9nb9EyacwVM-kjVs_438oj1cYJhP7IBvA"
   },
   "mongodb": {
     "database": "mongodb://127.0.0.1/Arto"
@@ -62,7 +62,7 @@
 
     "//": "By enabling 'bEnableReports' in-game reports will work, a player will not be able to spam reports",
     "bEnableReports": true,
-    "bReportChannelId": "your-discord-channel-id-here",
+    "bReportChannelId": "1323454110799888486",
 
     "//": "If bCompletedSeasonalQuests is set to 'true' it will set all quests except daily quests as completed",
     "bCompletedSeasonalQuests": false,
