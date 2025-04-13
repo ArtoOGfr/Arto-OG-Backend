@@ -410,6 +410,11 @@ function Error(ws) {
     ws.close();
 }
 
+app.get('/login', (req, res) => {
+    const loginMethod = config.discord;
+    res.status(200).json(loginMethod);
+})
+
 function RemoveClient(ws, joinedMUCs) {
     let clientIndex = global.Clients.findIndex(i => i.client == ws);
     let client = global.Clients[clientIndex];
