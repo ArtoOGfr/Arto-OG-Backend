@@ -1,72 +1,80 @@
-const functions = require("../structs/functions.js");
+const { Server: WebSocket } = require("ws");
+const crypto = require("crypto");
 
-module.exports = async (ws) => {
-    // create hashes
-    const ticketId = functions.MakeID().replace(/-/ig, "");
-    const matchId = functions.MakeID().replace(/-/ig, "");
-    const sessionId = functions.MakeID().replace(/-/ig, "");
+const port = 80;
+const wss = new WebSocket({ port });
 
-    Connecting();
-    await functions.sleep(800);
-    Waiting();
-    await functions.sleep(1000);
-    Queued();
-    await functions.sleep(4000);
-    SessionAssignment();
-    await functions.sleep(2000);
-    Join();
+const queue = [];
+const PLAYERS_PER_MATCH = 2;
 
-    function Connecting() {
-        ws.send(JSON.stringify({
-            "payload": {
-                "state": "Connecting"
-            },
-            "name": "StatusUpdate"
-        }));
+wss.on('listening', () => {
+    console.log(`Matchmaker started listening on port ${port}`);
+});
+
+// Vérifie régulièrement si assez de joueurs sont en attente
+setInterval(() => {
+    while (queue.length >= PLAYERS_PER_MATCH) {
+        const players = queue.splice(0, PLAYERS_PER_MATCH);
+        const matchId = crypto.randomBytes(8).toString("hex");
+        const sessionId = crypto.randomBytes(8).toString("hex");
+
+        players.forEach(ws => {
+            ws.send(JSON.stringify({
+                payload: {
+                    matchId,
+                    state: "SessionAssignment"
+                },
+                name: "StatusUpdate"
+            }));
+
+            setTimeout(() => {
+                ws.send(JSON.stringify({
+                    payload: {
+                        matchId,
+                        sessionId,
+                        joinDelaySec: 1
+                    },
+                    name: "Play"
+                }));
+            }, 2000);
+        });
+    }
+}, 1000);
+
+wss.on('connection', async (ws) => {
+    if (ws.protocol.toLowerCase().includes("xmpp")) {
+        return ws.close();
     }
 
-    function Waiting() {
-        ws.send(JSON.stringify({
-            "payload": {
-                "totalPlayers": 1,
-                "connectedPlayers": 1,
-                "state": "Waiting"
-            },
-            "name": "StatusUpdate"
-        }));
-    }
+    const ticketId = crypto.randomBytes(8).toString("hex");
 
-    function Queued() {
-        ws.send(JSON.stringify({
-            "payload": {
-                "ticketId": ticketId,
-                "queuedPlayers": 0,
-                "estimatedWaitSec": 0,
-                "status": {},
-                "state": "Queued"
-            },
-            "name": "StatusUpdate"
-        }));
-    }
+    sendStatus(ws, "Connecting");
 
-    function SessionAssignment() {
-        ws.send(JSON.stringify({
-            "payload": {
-                "matchId": matchId,
-                "state": "SessionAssignment"
-            },
-            "name": "StatusUpdate"
-        }));
-    }
+    setTimeout(() => {
+        sendStatus(ws, "Waiting", {
+            totalPlayers: 1,
+            connectedPlayers: 1
+        });
+    }, 500);
 
-    function Join() {
-        ws.send(JSON.stringify({
-            "payload": {
-                "matchId": matchId,
-                "sessionId": sessionId,
-                "joinDelaySec": 1
-            },
-            "name": "Play"
-        }));
-    }
+    setTimeout(() => {
+        queue.push(ws);
+
+        sendStatus(ws, "Queued", {
+            ticketId,
+            queuedPlayers: queue.length,
+            estimatedWaitSec: Math.ceil(queue.length / PLAYERS_PER_MATCH) * 5,
+            status: {}
+        });
+    }, 1000);
+});
+
+function sendStatus(ws, state, extra = {}) {
+    ws.send(JSON.stringify({
+        payload: {
+            state,
+            ...extra
+        },
+        name: "StatusUpdate"
+    }));
 }
