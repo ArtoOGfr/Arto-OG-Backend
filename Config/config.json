@@ -2,7 +2,7 @@
     "moderators": ["1193330890915459187"],
   "discord": {
     "bUseDiscordBot": true,
-    "bot_token": "MTMzMTc0MzUwNDk3MTMzMzc3Mw.GTX4Bj.d5gJY9nb9EyacwVM-kjVs_438oj1cYJhP7IBvA"
+    "bot_token": "MTM1NDIwMDIzOTY1Mjk5OTIwOQ.G1AB2N.TuCVn2-QAvn9DflFtJDfyhSneQVztIXmM01Ny8"
   },
   "mongodb": {
     "database": "mongodb://127.0.0.1/Arto"
