@@ -1,80 +1,85 @@
-const { Server: WebSocket } = require("ws");
-const crypto = require("crypto");
+const functions = require("../structs/functions.js");
 
-const port = 80;
-const wss = new WebSocket({ port });
+// file d'attente globale (un array d'objets joueurs)
+let playerQueue = [];
 
-const queue = [];
-const PLAYERS_PER_MATCH = 2;
+// nombre de joueurs pour lancer une game
+const PLAYERS_PER_MATCH = 3;
 
-wss.on('listening', () => {
-    console.log(`Matchmaker started listening on port ${port}`);
-});
+module.exports = async (ws) => {
+    const ticketId = functions.MakeID().replace(/-/ig, "");
+    const matchId = functions.MakeID().replace(/-/ig, "");
+    const sessionId = functions.MakeID().replace(/-/ig, "");
 
-// Vérifie régulièrement si assez de joueurs sont en attente
-setInterval(() => {
-    while (queue.length >= PLAYERS_PER_MATCH) {
-        const players = queue.splice(0, PLAYERS_PER_MATCH);
-        const matchId = crypto.randomBytes(8).toString("hex");
-        const sessionId = crypto.randomBytes(8).toString("hex");
+    const player = {
+        ws,
+        ticketId,
+        matchId,
+        sessionId,
+        isInMatch: false,
+    };
 
-        players.forEach(ws => {
-            ws.send(JSON.stringify({
-                payload: {
-                    matchId,
-                    state: "SessionAssignment"
-                },
-                name: "StatusUpdate"
-            }));
+    // Ajouter le joueur à la queue
+    playerQueue.push(player);
 
-            setTimeout(() => {
-                ws.send(JSON.stringify({
-                    payload: {
-                        matchId,
-                        sessionId,
-                        joinDelaySec: 1
-                    },
-                    name: "Play"
-                }));
-            }, 2000);
-        });
-    }
-}, 1000);
+    // Envoyer états de départ
+    sendState(ws, "Connecting");
+    await functions.sleep(800);
+    sendState(ws, "Waiting", {
+        totalPlayers: playerQueue.length,
+        connectedPlayers: 1
+    });
 
-wss.on('connection', async (ws) => {
-    if (ws.protocol.toLowerCase().includes("xmpp")) {
-        return ws.close();
-    }
-
-    const ticketId = crypto.randomBytes(8).toString("hex");
-
-    sendStatus(ws, "Connecting");
-
-    setTimeout(() => {
-        sendStatus(ws, "Waiting", {
-            totalPlayers: 1,
-            connectedPlayers: 1
-        });
-    }, 500);
-
-    setTimeout(() => {
-        queue.push(ws);
-
-        sendStatus(ws, "Queued", {
+    // Boucle d'attente dans la queue tant qu'on n'est pas en match
+    let estimatedWaitSec = 0;
+    while (!player.isInMatch) {
+        const queuedPlayers = playerQueue.indexOf(player); // position dans la queue
+        estimatedWaitSec += 2;
+        sendState(ws, "Queued", {
             ticketId,
-            queuedPlayers: queue.length,
-            estimatedWaitSec: Math.ceil(queue.length / PLAYERS_PER_MATCH) * 5,
+            queuedPlayers,
+            estimatedWaitSec,
             status: {}
         });
-    }, 1000);
-});
+        await functions.sleep(2000);
 
-function sendStatus(ws, state, extra = {}) {
+        // Check si on peut lancer une partie
+        if (playerQueue.length >= PLAYERS_PER_MATCH) {
+            launchMatch();
+        }
+    }
+};
+
+// Fonction pour lancer une partie quand y a assez de joueurs
+function launchMatch() {
+    const playersForMatch = playerQueue.splice(0, PLAYERS_PER_MATCH);
+    const matchId = functions.MakeID().replace(/-/ig, "");
+
+    playersForMatch.forEach(async (player, i) => {
+        player.isInMatch = true;
+        const sessionId = functions.MakeID().replace(/-/ig, "");
+
+        sendState(player.ws, "SessionAssignment", { matchId });
+        await functions.sleep(1000);
+        player.ws.send(JSON.stringify({
+            payload: {
+                matchId,
+                sessionId,
+                joinDelaySec: 1
+            },
+            name: "Play"
+        }));
+    });
+}
+
+// Envoi d’un état générique
+function sendState(ws, state, extra = {}) {
+    const basePayload = { state, ...extra };
+    let name = "StatusUpdate";
+    if (state === "Play") name = "Play";
+
     ws.send(JSON.stringify({
-        payload: {
-            state,
-            ...extra
-        },
-        name: "StatusUpdate"
+        payload: basePayload,
+        name
     }));
 }
